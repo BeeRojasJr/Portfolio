@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cyberpunk Portfolio</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- 🎥 VIDEO (DO NOT AUTOPLAY; controlled via JS) -->
+  <video muted id="bg-video">
+    <source src="videos/6th.mp4" type="video/mp4">
+  </video>
+
+  <canvas id="particles"></canvas>
+
+  <!-- Terminal Intro Typing -->
+  <div id="terminal-intro" class="terminal-box">
+    <pre id="terminal-text"></pre>
+  </div>
+
+  <div class="theme-toggle" onclick="toggleTheme()">THEME</div>
+
+  <nav>
+    <a onclick="showPage('about')">About</a>
+    <a onclick="showPage('services')">Services</a>
+    <a onclick="showPage('projects')">Projects</a>
+    <a onclick="showPage('contact')">Contact</a>
+  </nav>
+
+  <header>
+    <h1>BEE ROJAS</h1>
+    <img src="images/me.jpg" class="avatar" />
+  </header>
+
+  <div id="about" class="section page">
+    <h2>About Me</h2>
+    <div class="card"><p>Cyberpunk developer building futuristic systems.</p></div>
+  </div>
+
+  <div id="services" class="section page" style="display:none;">
+    <h2>Services</h2>
+    <div class="card"><p>AI Automation – Dashboards – Cyber UX Design</p></div>
+  </div>
+
+  <div id="projects" class="section page" style="display:none;">
+    <h2>Projects</h2>
+    <div class="card"><h3>AI Fact Checker</h3><p>LLM + semantic engine.</p></div>
+    <div class="card"><h3>Cyber Dashboard</h3><p>Live SOC metrics.</p></div>
+  </div>
+
+  <div id="contact" class="section page" style="display:none;">
+    <h2>Contact</h2>
+    <div class="card"><p>Let's work together.</p><a href="mailto:rojashoneybee@gmail.com" class="btn">Email Me</a></div>
+  </div>
+
+  <footer>
+    <p>© 2026 Bee Rojas Cyberpunk Portfolio</p>
+  </footer>
+
+<script>
+/* --- Terminal Typing --- */
+const terminalBox = document.getElementById("terminal-intro");
+const terminalText = document.getElementById("terminal-text");
+
+const introLines = [
+  { text: "SCANNING VISITOR CREDENTIALS... [SUCCESS]", color: '#0ff' },
+  { text: "DECRYPTING WORK HISTORY...", color: '#b3ff00' },
+  { text: "SYNCHRONIZING PORTFOLIO TELEMETRY...", color: '#ff00ff' },
+  { text: "ACCESSING BEE ROJAS' TERMINAL...", color: '#00ffff' },
+  { text: "Welcome, let's build the future together.", color: '#ff0099' }
+];
+
+let line = 0, char = 0;
+const typeSound = new Audio('sounds/typing.mp3');
+
+/* --- Background Video Element (Will start AFTER intro) --- */
+const bgVideo = document.getElementById("bg-video");
+
+function typeLine() {
+  if (line < introLines.length) {
+    let currentLine = introLines[line];
+
+    if (char < currentLine.text.length) {
+      terminalText.innerHTML += `<span style="color:${currentLine.color}">${currentLine.text[char]}</span>`;
+      char++;
+      typeSound.play().catch(()=>{});
+      setTimeout(typeLine, 40);
+    } else {
+      terminalText.innerHTML += "\n";
+      char = 0;
+      line++;
+      setTimeout(typeLine, 300);
+    }
+  } else {
+    // Fade out terminal intro
+    terminalBox.style.transition = "opacity 0.8s";
+    terminalBox.style.opacity = 0;
+
+    setTimeout(() => {
+      terminalBox.remove();
+
+      // 🎥 Start the video AFTER terminal finishes
+      bgVideo.play();
+
+    }, 800);
+  }
+}
+
+// Skip intro fast
+terminalBox.addEventListener("click", () => {
+  terminalBox.remove();
+  bgVideo.play();
+});
+
+typeLine();
+
+/* Stop video after one play */
+bgVideo.addEventListener("ended", () => {
+  bgVideo.pause();
+  bgVideo.currentTime = 0;
+  bgVideo.style.opacity = 0;  // fade out after ending
+});
+
+/* Page routing */
+function showPage(id) {
+  document.querySelectorAll(".page").forEach(p => p.style.display = "none");
+  document.getElementById(id).style.display = "block";
+}
+
+/* Themes */
+let themes = [
+  { glow: "#0ff", bg: "#02010a" },
+  { glow: "#b300ff", bg: "#1a002b" },
+  { glow: "#ff0099", bg: "#280016" }
+];
+let t = 0;
+
+function toggleTheme() {
+  t = (t + 1) % themes.length;
+  document.body.style.background = themes[t].bg;
+  document.querySelectorAll("*").forEach(el =>
+    el.style.setProperty("--glow", themes[t].glow)
+  );
+}
+
+/* Floating Particles */
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+
+let particles = [];
+for (let i = 0; i < 80; i++) {
+  particles.push({
+    x: Math.random() * innerWidth,
+    y: Math.random() * innerHeight,
+    r: Math.random() * 2,
+    dx: Math.random() * 1,
+    dy: Math.random() * 1
+  });
+}
+
+function drawParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = themes[t].glow || "#0ff";
+
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fill();
+    p.x += p.dx;
+    p.y += p.dy;
+
+    if (p.x > innerWidth || p.y > innerHeight) {
+      p.x = p.y = 0;
+    }
+  });
+
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+</script>
+</body>
+</html>
